@@ -28,6 +28,9 @@ It is recommended to use the IDE for debugging. Here are some suggestions:
 - After `train.py`, `inference.py` shows the reverse diffusion process--how to generate the target distribution by standard normal distribution.
 - `model.py` is diffusion model which is composed of MLP, you can try another network.
 - `Loss.py` stipulates that the network prediction is noise, you can modify the target.
+## Result
+- ![diffusion process](https://github.com/Zhoujp-Runner/Diffusion-model-demo/blob/main/result/diffusion_process.png)
+- ![inference process](https://github.com/Zhoujp-Runner/Diffusion-model-demo/blob/main/result/inference.png)
 # Notes
-- This project is based on the instructional video, and the url is here.[[bilibili/deep_thought](https://www.bilibili.com/video/BV1b541197HX/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=e3780c93bbfab1295672c1a3f1be54d5)]
+- This project is based on the instructional video, and the url is here.**[[bilibili/deep_thought](https://www.bilibili.com/video/BV1b541197HX/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=e3780c93bbfab1295672c1a3f1be54d5)]**
 - The annotation is in Chinese.
