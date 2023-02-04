@@ -29,8 +29,8 @@ It is recommended to use the IDE for debugging. Here are some suggestions:
 - `model.py` is diffusion model which is composed of MLP, you can try another network.
 - `Loss.py` stipulates that the network prediction is noise, you can modify the target.
 ## Result
-- ![diffusion process](https://github.com/Zhoujp-Runner/Diffusion-model-demo/blob/main/result/diffusion_process.png)
-- ![inference process](https://github.com/Zhoujp-Runner/Diffusion-model-demo/blob/main/result/inference.png)
+- ![diffusion process](https://raw.githubusercontent.com/Zhoujp-Runner/Diffusion-model-demo/main/result/diffusion_process.png?token=GHSAT0AAAAAAB6GXOANEPUEXFFMCNPGROKCY66JOBQ)
+- ![inference process](https://raw.githubusercontent.com/Zhoujp-Runner/Diffusion-model-demo/main/result/inference.png?token=GHSAT0AAAAAAB6GXOAMBISAU27JK55O7XJ4Y66JORQ)
 # Notes
 - This project is based on the instructional video, and the url is here.**[[bilibili/deep_thought](https://www.bilibili.com/video/BV1b541197HX/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click&vd_source=e3780c93bbfab1295672c1a3f1be54d5)]**
 - The annotation is in Chinese.
