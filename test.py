@@ -60,22 +60,21 @@ def viz_diffusion(x_0, num_show):
     """
     对扩散过程进行可视化
     :param x_0: 原始数据输入
-    :param num_show: 需要展示的步骤数量
+    :param num_show: 需要展示的步骤数量，
     :return: None
     """
-    fig, axs = plt.subplots(2, 10, figsize=(28, 3))
+    fig, axs = plt.subplots(1, num_show, figsize=(28, 3))
     plt.rc('text', color='blue')
     for t in range(num_show):
-        j = t // 10
         k = t % 10
         sample_t = q_x(x_0, torch.tensor([t * num_steps // num_show]))
 
-        axs[j, k].scatter(sample_t[:, 0], sample_t[:, 1], color='red', edgecolor='white')
-        axs[j, k].set_axis_off()
-        axs[j, k].set_title('q(x_{})'.format(t * num_steps // num_show))
+        axs[k].scatter(sample_t[:, 0], sample_t[:, 1], color='red', edgecolor='white')
+        axs[k].set_axis_off()
+        axs[k].set_title('q(x_{})'.format(t * num_steps // num_show))
     plt.show()
 
 
 if __name__ == '__main__':
     dataset = get_dataset(10**4, viz=False)
-    viz_diffusion(dataset, 20)
+    viz_diffusion(dataset, 10)

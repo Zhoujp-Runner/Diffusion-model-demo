@@ -71,15 +71,11 @@ def inference_viz(seq):
     plt.rc('text', color='blue')
     for idx, data in enumerate(seq):
         data = data.detach().numpy()  # data含有梯度，需要进行detach
-        if idx == 101:
-            axs[10].scatter(data[:, 0], data[:, 1], color='red', edgecolor='white')
-            axs[10].set_axis_off()
-            axs[10].set_title('q(x_{})'.format(num_steps - idx + 1))
-        elif idx % 10 == 0:
+        if idx % 10 == 0:
             col = idx // 10
             axs[col].scatter(data[:, 0], data[:, 1], color='red', edgecolor='white')
             axs[col].set_axis_off()
-            axs[col].set_title('q(x_{})'.format(num_steps - idx + 1))
+            axs[col].set_title('q(x_{})'.format(num_steps - idx))
     plt.show()
 
 
