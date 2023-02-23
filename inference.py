@@ -48,39 +48,27 @@ def get_alpha_prod_st(s_steps, alpha_prod):
     :param alpha_prod: 原始序列的alpha_prod
     :return: 子序列的alpha_prod_st
     """
-    alpha_prod_st = dict()
+    alpha_prod_st = []
     for i in s_steps:
-        alpha_prod_st[i] = torch.tensor([alpha_prod[i]])
-    return alpha_prod_st
+        alpha_prod_st.append(torch.tensor([alpha_prod[i]]))
+    return torch.tensor(alpha_prod_st)
 
 
-def get_alpha_prod_p_st(s_steps, alpha_prod_st):
-    alpha_prod_p_st = dict()
-    st_1 = 0
-    for i in s_steps:
-        if i == 0:
-            alpha_prod_p_st[i] = alpha_prod_st[0]
-        else:
-            alpha_prod_p_st[i] = alpha_prod_st[st_1]
-            st_1 = i
-    return alpha_prod_p_st
+def get_alpha_prod_p_st(alpha_prod_st):
+    return torch.cat([torch.tensor([1]).float(), alpha_prod_st[:-1]], 0)
 
 
-def get_beta_st(s_steps, alpha_prod_st):
+def get_beta_st(alpha_prod_st, alpha_prod_p_st):
     """
 
-    :param s_steps: 子序列
     :param alpha_prod_st: 子序列对应的alpha_prod_st
+    :param alpha_prod_p_st: 子序列对应的alpha_prod_p_st
     :return: beta_st
     """
-    beta_st = dict()
-    st_1 = 0
-    for i in s_steps:
-        if i == 0:
-            beta_st[i] = torch.tensor([betas[0]])  # 先暂时让第0时刻的beta为0
-        else:
-            beta_st[i] = 1 - alpha_prod_st[i] / alpha_prod_st[st_1]
-            st_1 = i
+    beta_st = []
+    for i in range(len(alpha_prod_st)):
+        beta = 1 - alpha_prod_st[i] / alpha_prod_p_st[i]
+        beta_st.append(beta)
     return beta_st
 
 
@@ -127,13 +115,13 @@ def improve_diffusion_inference(diffusion_model, beta, alpha, alpha_prod, one_mi
     x_t = torch.randn(10**4, 2)
     seq = [x_t]
 
-    s_steps = get_s_steps(n_steps, 2)  # 获得子序列st
+    s_steps = get_s_steps(n_steps, 4)  # 获得子序列st
     alpha_prod_st = get_alpha_prod_st(s_steps, alpha_prod)
-    beta_st = get_beta_st(s_steps, alpha_prod_st)
-    alpha_prod_p_st = get_alpha_prod_p_st(s_steps, alpha_prod_st)
+    alpha_prod_p_st = get_alpha_prod_p_st(alpha_prod_st)
+    beta_st = get_beta_st(alpha_prod_st, alpha_prod_p_st)
 
     # 进行正向推理，即由st推出st-1
-    for t in s_steps:
+    for t in range(len(s_steps)):  # 注意这里的t是连续的，虽然前面由不连续的t生成新的beta和alpha，但是这里的t还是连续的
         x_t = improve_sample(diffusion_model, x_t, t, beta_st, alpha_prod_st, alpha_prod_p_st)
         seq.append(x_t)
 
@@ -143,8 +131,8 @@ def improve_diffusion_inference(diffusion_model, beta, alpha, alpha_prod, one_mi
 # 给定时刻st及其数据，采样st-1时刻的数据
 def improve_sample(diffusion_model, x_t, t, beta, alpha_prod, alpha_prod_p):
 
-    alpha = 1 - betas[t]
-    a = 1 / torch.sqrt(alpha)  # 总体的系数
+    alpha = 1 - beta[t]
+    a = 1 / alpha  # 总体的系数
     one_minus_alpha_bar_sqrt = torch.sqrt(1 - alpha_prod[t])
     b = beta[t] / one_minus_alpha_bar_sqrt  # 噪声的系数
 
@@ -181,12 +169,12 @@ if __name__ == '__main__':
     seq = improve_diffusion_inference(model, betas, alphas, alphas_prod, one_minus_alphas_bar_sqrt, alphas_prod_p, num_steps)
     inference_viz(seq)
     # s_s = get_s_steps(num_steps, 2)
-    # print(len(s_s))
+    # # print(len(s_s))
     # alpha_st = get_alpha_prod_st(s_s, alphas_prod)
-    # print(torch.tensor([alpha_st[0]]))
-    # beta_st = get_beta_st(s_s, alpha_st)
-    # print(beta_st)
-    # alpha_prod_p_st = get_alpha_prod_p_st(s_s, alpha_st)
-    # print(alpha_prod_p_st)
+    # # print(torch.tensor([alpha_st[0]]))
+    # alpha_prod_p_st = get_alpha_prod_p_st(alpha_st)
+    # beta_st = get_beta_st(alpha_st, alpha_prod_p_st)
     # print(alpha_st)
+    # print(alpha_prod_p_st)
+    # print(beta_st)
 
