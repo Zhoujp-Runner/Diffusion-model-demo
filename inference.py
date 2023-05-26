@@ -24,7 +24,7 @@ assert alphas.shape == alphas_prod.shape == alphas_prod_p.shape == alphas_bar_sq
 print("all the shapes are same, shape is {}".format(alphas_prod.shape))
 
 # 加载模型
-epoch = 3999  # 需要加载第几个周期的模型
+epoch = 1800  # 需要加载第几个周期的模型
 path = 'D://model_save//diffusion_demo//diffusion_epoch_{}.pth'.format(epoch)  # 模型加载的路径
 model = MLPDiffusion(num_steps)  # 创建模型
 model.load_state_dict(torch.load(path))  # 将模型参数加载进模型中
@@ -44,6 +44,7 @@ def get_s_steps(n_steps, stride):
 def get_alpha_prod_st(s_steps, alpha_prod):
     """
     根据子序列，计算相应的alpha_prod
+
     :param s_steps: 子序列
     :param alpha_prod: 原始序列的alpha_prod
     :return: 子序列的alpha_prod_st
@@ -104,7 +105,7 @@ def sample(diffusion_model, x_t, t, beta, alpha, alpha_prod, one_minus_alpha_bar
 
     # 重参数化采样
     eps = torch.randn_like(x_t)  # 从标准正态分布中采样
-    return mean + sigma * eps
+    return mean + torch.sqrt(sigma) * eps  # 注意这里是标准差
 
 
 # 加快采样速度
@@ -115,7 +116,7 @@ def improve_diffusion_inference(diffusion_model, beta, alpha, alpha_prod, one_mi
     x_t = torch.randn(10**4, 2)
     seq = [x_t]
 
-    s_steps = get_s_steps(n_steps, 4)  # 获得子序列st
+    s_steps = get_s_steps(n_steps, 2)  # 获得子序列st
     alpha_prod_st = get_alpha_prod_st(s_steps, alpha_prod)
     alpha_prod_p_st = get_alpha_prod_p_st(alpha_prod_st)
     beta_st = get_beta_st(alpha_prod_st, alpha_prod_p_st)
@@ -148,25 +149,26 @@ def improve_sample(diffusion_model, x_t, t, beta, alpha_prod, alpha_prod_p):
 
     # 重参数化采样
     eps = torch.randn_like(x_t)  # 从标准正态分布中采样
-    return mean + sigma * eps
+    return mean + torch.sqrt(sigma) * eps  # 注意这里是标准差
 
 
 # 可视化推理
 def inference_viz(seq):
     fig, axs = plt.subplots(1, 11, figsize=(28, 3))
     plt.rc('text', color='blue')
+    max_step = len(seq)
     for idx, data in enumerate(seq):
         data = data.detach().numpy()  # data含有梯度，需要进行detach
         if idx % 10 == 0:
-            col = idx // 10
+            col = idx // 100
             axs[col].scatter(data[:, 0], data[:, 1], color='red', edgecolor='white')
             axs[col].set_axis_off()
-            axs[col].set_title('q(x_{})'.format(num_steps - idx))
+            axs[col].set_title('q(x_{})'.format(max_step - idx))
     plt.show()
 
 
 if __name__ == '__main__':
-    seq = improve_diffusion_inference(model, betas, alphas, alphas_prod, one_minus_alphas_bar_sqrt, alphas_prod_p, num_steps)
+    seq = diffusion_inference(model, betas, alphas, alphas_prod, one_minus_alphas_bar_sqrt, alphas_prod_p, num_steps)
     inference_viz(seq)
     # s_s = get_s_steps(num_steps, 2)
     # # print(len(s_s))
